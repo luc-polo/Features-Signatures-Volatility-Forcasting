@@ -94,6 +94,7 @@ KNN pour le stock trends prediction
 
 ### Personnes contactees : 
 Cedric Viot
+
 Frederic Muller
 
 
