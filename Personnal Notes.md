@@ -76,7 +76,7 @@ Vendre des options ou acheter des futures short en période de volatilité décr
 
 
 
-
+### Martin
 Iddes pour l'instant :
 
 https://www.kaggle.com/competitions/jane-street-real-time-market-data-forecasting/overview
@@ -92,8 +92,27 @@ Les modèles hybrides combinent les forces des modèles traditionnels avec celle
 
 KNN pour le stock trends prediction
 
-Personnes contactees : 
+### Personnes contactees : 
 Cedric Viot
 
 
 
+Bo
+
+
+
+### Message:
+Bonjour [Prénom Nom],
+
+Etudiant à l'École des Mines de Saint-Étienne, je suis intéressé par les métiers de la finance quantitative. Je travaille actuellement sur le choix d’un sujet pour un projet académique portant sur des sujets d'analyse quantitative
+
+J’hésite entre deux axes précis et me permets de solliciter votre avis d’expert :
+
+Application des signatures pour prédire des anomalies, notamment des hausses de volatilité, en combinant des données financières multi-dimensionnelles (prix, volume, spread bid-ask). L’idée serait d’utiliser la transformation de signature pour capturer les interactions complexes entre ces dimensions et entraîner un modèle supervisé ou semi-supervisé.
+Prédiction de la volatilité avec des modèles hybrides, combinant des approches traditionnelles comme GARCH avec des réseaux de neurones pour modéliser les composantes non linéaires.
+Selon vous, lequel de ces deux sujets est le plus pertinent ou innovant dans le contexte actuel de la finance quantitative ?
+
+Je serais ravi d’avoir votre retour ou vos conseils à ce sujet. Merci par avance pour votre aide et votre temps !
+
+Bien à vous,
+[Votre Prénom Nom
