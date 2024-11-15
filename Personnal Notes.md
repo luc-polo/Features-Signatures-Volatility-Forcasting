@@ -94,7 +94,7 @@ KNN pour le stock trends prediction
 
 ### Personnes contactees : 
 Cedric Viot
-
+Frederic Muller
 
 
 Bo
@@ -102,17 +102,18 @@ Bo
 
 
 ### Message:
-Bonjour [Prénom Nom],
+Bonjour Monsieur Muller,
 
-Etudiant à l'École des Mines de Saint-Étienne, je suis intéressé par les métiers de la finance quantitative. Je travaille actuellement sur le choix d’un sujet pour un projet académique portant sur des sujets d'analyse quantitative
+Etudiant à l'École des Mines de Saint-Étienne, je suis intéressé par les métiers de la finance quantitative. Je travaille actuellement sur le choix d’un sujet pour un projet académique portant sur des sujets d'analyse quantitative.
 
-J’hésite entre deux axes précis et me permets de solliciter votre avis d’expert :
+J’hésite entre deux sujets précis et me permets de solliciter votre avis d’expert :
 
-Application des signatures pour prédire des anomalies, notamment des hausses de volatilité, en combinant des données financières multi-dimensionnelles (prix, volume, spread bid-ask). L’idée serait d’utiliser la transformation de signature pour capturer les interactions complexes entre ces dimensions et entraîner un modèle supervisé ou semi-supervisé.
-Prédiction de la volatilité avec des modèles hybrides, combinant des approches traditionnelles comme GARCH avec des réseaux de neurones pour modéliser les composantes non linéaires.
-Selon vous, lequel de ces deux sujets est le plus pertinent ou innovant dans le contexte actuel de la finance quantitative ?
+1. Utilisation des signatures de métriques financières pour prédire des perturbations de volatilité. L’idée serait d’utiliser la transformation de signature pour capturer les interactions complexes entre ces dimensions et entraîner un modèle supervisé ou semi-supervisé. 
 
-Je serais ravi d’avoir votre retour ou vos conseils à ce sujet. Merci par avance pour votre aide et votre temps !
+2. Prédiction de la volatilité avec des modèles hybrides, combinant des approches traditionnelles comme GARCH avec des réseaux de neurones pour modéliser les composantes complexes. 
 
-Bien à vous,
-[Votre Prénom Nom
+3. Utilisation de la transfomée de Fourier pour calculer le prix d’options. L’objectif est de transformer les calculs complexes du domaine temporel en un domaine fréquentiel, simplifiant les intégrations nécessaires.
+
+Je serais très intéressé de savoir quel sujet vous jugez le plus interessant. Merci par avance pour votre aide et votre temps !
+
+Bien à vous
