@@ -73,3 +73,27 @@ Pentes de la courbe des futures (contango/backwardation).
 Stratégies long/short :
 Acheter des options d’achat (calls) ou des futures en période de forte volatilité attendue.
 Vendre des options ou acheter des futures short en période de volatilité décroissante.
+
+
+
+
+Iddes pour l'instant :
+
+https://www.kaggle.com/competitions/jane-street-real-time-market-data-forecasting/overview
+
+Pricing d'option avec transformees de fourier.
+
+Prédiction de la volatilité avec des modèles hybrides
+
+Les modèles traditionnels comme le GARCH sont largement utilisés pour modéliser la volatilité en capturant les dépendances temporelles et les clustering de volatilité.
+
+Les modèles hybrides combinent les forces des modèles traditionnels avec celles des réseaux neuronaux. L’idée est d’utiliser le GARCH pour modéliser la composante linéaire et les dépendances temporelles, tandis que les réseaux neuronaux capturent les relations non linéaires et les schémas complexes que le GARCH ne peut pas appréhender seul.
+
+
+KNN pour le stock trends prediction
+
+Personnes contactees : 
+Cedric Viot
+
+
+
