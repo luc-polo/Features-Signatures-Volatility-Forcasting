@@ -103,6 +103,20 @@ Bo
 
 
 ### Message:
+
+Bonjour Guillaume,
+
+En 3A aux mines de sainté je m’intéresse aux metiers de la finance de marché. Je dois actuellement faire un choix pour un projet académique que je souhaite réaliser sur une problématique d’analyse quantitative.
+J’hésite entre 3 sujets précis.
+Pourrais-je vous les présenter succinctement et avoir votre retour sur celui que vous jugez le plus pertinent?
+Promis je ne vous prendrai pas trop de temps!
+
+Merci par avance
+
+
+
+
+
 Bonjour Monsieur Muller,
 
 Etudiant à l'École des Mines de Saint-Étienne, je suis intéressé par les métiers de la finance quantitative. Je travaille actuellement sur le choix d’un sujet pour un projet académique portant sur des sujets d'analyse quantitative.
