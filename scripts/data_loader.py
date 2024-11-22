@@ -25,7 +25,7 @@ def download_data(symbol, start_date, end_date):
     os.makedirs(DATA_DIR, exist_ok=True)
     data.to_csv(LOCAL_FILE, index=False)
     print(f"Data saved to: {LOCAL_FILE}")
-    return data
+    return data.set_index("Date")
 
 
 def load_local_data():
