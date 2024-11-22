@@ -8,7 +8,7 @@ START_DATE = '2020-01-01'
 END_DATE = '2023-01-01'
 
 # Load or download data
-gold_data = get_gold_data(GOLD_SYMBOL, START_DATE, END_DATE, refresh=True)
+gold_data = get_gold_data(GOLD_SYMBOL, START_DATE, END_DATE, refresh=False)
 
 # Add metrics
 gold_data = add_metrics(gold_data)
@@ -16,3 +16,4 @@ gold_data = add_metrics(gold_data)
 # Visualize data
 plot_gold_price(gold_data)
 plot_daily_returns(gold_data)
+
