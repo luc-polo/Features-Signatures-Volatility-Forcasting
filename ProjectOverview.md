@@ -1,5 +1,5 @@
-# Identification of Atypical Market Behaviors in WTI Crude Oil Futures Using Path Signatures
-The project focuses on detecting atypical market behaviors in WTI crude oil futures using advanced path signature techniques. I plan to examine 30-minute intervals throughout the trading day to identify behavioral anomalies, such as volatility spikes or unusual spreads between ask and bid prices.
+# Identification of Atypical Market Behaviors in financial time series leveraging time series signatures
+
 
 ### Origins and relevance of This Project
 Using path signatures to detect atypical behaviors in WTI crude oil futures offers a powerful edge in market analysis and risk management. Inspired by the paper ["A Primer on the Signature Method in Machine Learning"](https://arxiv.org/pdf/1603.03788) this project leverages path signatures to address the limitations of traditional volatility indicators, which often miss nuanced, short-term anomalies signaling potential market disruptions. Given WTI’s sensitivity to geopolitical events, supply-demand shifts, and economic news, path signatures allow us to capture complex interactions within 30-minute intervals, such as fluctuations in ask-bid spreads, volume imbalances, and micro-trends that standard models may overlook. This approach can significantly enhance our ability to anticipate and respond to rapid price shifts, directly benefiting systematic trading strategies and improving our risk-adjusted returns in volatile market conditions.
