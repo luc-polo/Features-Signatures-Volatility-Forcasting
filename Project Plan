@@ -8,25 +8,28 @@ L’objectif est de développer un algorithme capable de détecter des anomalies
 
 Étape 1 : Collecte et Prétraitement des Données
 
-1.1. Collecte des Données
+1.1. Raw data collection
 	•	Sources de données : Obtenez les données historiques des cours de l’or auprès de sources fiables telles que Bloomberg, Reuters, ou des banques de données financières.
 	•	Période d’analyse : Déterminez la période d’analyse (par exemple, les 5 dernières années) et la fréquence des données (par exemple, données intrajournalières toutes les 15 minutes).
 
-1.2. Variables à Inclure
+1.2. Features extracted
 	•	Prix de l’or : Prix spot de l’or en dollars américains par once.
 	•	Volume de trading : Si disponible, le volume des transactions sur les marchés de l’or.
 	•	Données macroéconomiques : Taux de change USD, indices boursiers, taux d’intérêt, etc., si vous souhaitez enrichir le modèle.
 	•	Horodatage : Date et heure de chaque enregistrement.
 
-1.3. Prétraitement des Données
-	•	Gestion des données manquantes :
-	•	Interpolation : Remplissez les valeurs manquantes par interpolation linéaire ou utilisez des méthodes plus avancées comme l’imputation par modèles.
-	•	Suppression : Si les données manquantes sont peu nombreuses, vous pouvez les supprimer.
-	•	Nettoyage des données :
-	•	Détection des anomalies évidentes : Supprimez les valeurs aberrantes évidentes qui résultent d’erreurs de saisie ou de transmission.
+1.3. Raw features preprocessing: This section contains raw financial data is preprocessing and transsformation into streams that are ready for signature computation. This involves steps such as normalization, transformation of features, and applying the lead-lag transformation to capture temporal dynamics.
+	•	Verify there is no missing values
+	•	Visualisation of data to identify trends or outliers
 	•	Normalisation :
+Normalized time
+Normalized logarithm of mid-price
+​
+ 
 	•	Échelle des variables : Normalisez les variables pour qu’elles aient une moyenne nulle et une variance unitaire, ce qui facilite la convergence des algorithmes d’apprentissage.
 	•	Transformation log : Appliquez une transformation logarithmique sur les prix pour stabiliser la variance.
+
+
 
 Étape 2 : Construction du Chemin Multidimensionnel
 
