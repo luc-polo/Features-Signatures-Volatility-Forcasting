@@ -6,26 +6,13 @@
 The goal is to develop an algorithm capable of detecting anomalies in the gold market by analyzing historical financial metrics. The project is based on path signatures exploitation which allows to capture non-linear patterns and interactions within time series data.
 
 ## Step 1: Data Collection
-Source: Historical gold price data is collected from reliable financial data providers such as Yahoo Finance.
+Source: Historical gold price data collected on Yahoo Finance.
 Timeframe: Data from January 2022 to October 2024 with a daily frequency is used to capture medium-term trends and dynamics.
 Features Collected:
 Gold spot price (Close, High, Low, and Open).
 Trading volume (Volume).
 Timestamp (Date).
 
-
-Updated Project Description (English)
-Development of an Algorithm for Anomaly Detection in the Gold Market
-Introduction
-The goal is to develop an algorithm capable of detecting anomalies in the gold market by analyzing historical price data. The project leverages path signatures, a mathematical framework that captures complex, non-linear patterns and interactions within time series data.
-
-Step 1: Data Collection
-Source: Historical gold price data is collected from reliable financial data providers such as Yahoo Finance.
-Timeframe: Data from January 2022 to October 2024 with a daily frequency is used to capture medium-term trends and dynamics.
-Features Collected:
-- Gold spot price (Close, High, Low, and Open).
-- Trading volume (Volume).
-- Timestamp (Date).
 
 ## Step 2: Feature Engineering
 Derived metrics are created to enrich the dataset, enabling deeper insights into market behavior:
