@@ -5,7 +5,9 @@
 ## Introduction
 The goal is to develop an algorithm capable of detecting anomalies in the gold market by analyzing historical financial metrics. The project is based on path signatures exploitation which allows to capture non-linear patterns and interactions within time series data.
 
-## Step 1: Data Collection
+## I) Work on data
+
+### Step 1: Data Collection
 Source: Historical gold price data collected on Yahoo Finance.
 Timeframe: Data from January 2022 to October 2024 with a daily frequency is used to capture medium-term trends and dynamics.
 Features Collected:
@@ -14,7 +16,7 @@ Trading volume (Volume).
 Timestamp (Date).
 
 
-## Step 2: Feature Engineering
+### Step 2: Feature Engineering
 Derived metrics are created to enrich the dataset, enabling deeper insights into market behavior:
 
 -Daily Returns: Captures short-term price momentum as the percentage change in the closing price.
@@ -31,37 +33,17 @@ The derived metrics and raw features are normalized to ensure compatibility with
 - Normalized Spread, Imbalance, and Daily Returns: Standardized to remove scale effects and emphasize relative variability.
 - Normalized Moving Average: Standardizes long-term trends for consistency across the dataset.
 
-##Step 4: Lead-Lag Transformation
+### Step 4: Lead-Lag Transformation
 To better capture temporal dynamics, the lead-lag transformation is applied:
-
 Each point is duplicated into "lead" (current observation) and "lag" (previous observation) values, creating a zigzag-like path.
 This transformation ensures compatibility with path signature models, allowing them to process time-series data effectively.
 
 
-### Étape 2 : Construction du Chemin Multidimensionnel
+## II) Path signature computation
 
-2.1. Représentation du Chemin
-	•	Chemin en \mathbb{R}^n : Représentez les données prétraitées comme un chemin continu dans un espace multidimensionnel, où chaque dimension correspond à une variable.
-	•	Variables à inclure dans le chemin :
-	•	X_t = [\text{Temps normalisé}, \text{Prix de l{\prime}or}, \text{Volume}, \text{Autres variables}]
-
-2.2. Transformation Lead-Lag
-	•	Objectif : La transformation lead-lag permet de capturer les dépendances temporelles fines et les variations abruptes en doublant les dimensions du chemin.
-	•	Procédure :
-	•	Création des variables lead et lag : Pour chaque variable  X , créez  X_{\text{lead}}  (valeur avancée d’un pas de temps) et  X_{\text{lag}}  (valeur actuelle).
-	•	Construction du chemin lead-lag : Le chemin final aura des dimensions  [X_{\text{lead}}, X_{\text{lag}}]  pour chaque variable.
-
-2.3. Chemin Final
-	•	Exemple de chemin final :
-
-\text{Chemin}t = [\text{Temps}{\text{lead}}, \text{Temps}{\text{lag}}, \text{Prix}{\text{lead}}, \text{Prix}{\text{lag}}, \text{Volume}{\text{lead}}, \text{Volume}_{\text{lag}}, \dots]
-
-
-Étape 3 : Calcul de la Signature du Chemin
-
-3.1. Choix du Niveau de Troncature
-	•	Niveau de signature : Décidez jusqu’à quel niveau  n  vous souhaitez calculer la signature. Un niveau plus élevé capture des interactions plus complexes mais augmente la dimensionnalité.
-	•	Recommandation : Commencez par un niveau 4 ou 5 pour un bon compromis entre complexité et expressivité.
+3.1. Choosing the Truncation Level
+Signature Level: Decide the level n up to which the signature should be computed. Higher levels capture more complex interactions but increase dimensionality.
+We will start with level 4 or 5 for a good balance between complexity and expressiveness.
 
 3.2. Calcul de la Signature
 	•	Bibliothèques à utiliser :
