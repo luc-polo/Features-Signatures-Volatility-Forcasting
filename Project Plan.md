@@ -3,7 +3,7 @@
 # Development of an Algorithm for Anomaly Detection in the Gold Market
 
 ## Introduction
-The goal is to develop an algorithm capable of detecting anomalies in the gold market by analyzing historical price data. The project leverages path signatures, a mathematical framework that captures complex, non-linear patterns and interactions within time series data.
+The goal is to develop an algorithm capable of detecting anomalies in the gold market by analyzing historical financial metrics. The project is based on path signatures exploitation which allows to capture non-linear patterns and interactions within time series data.
 
 ## Step 1: Data Collection
 Source: Historical gold price data is collected from reliable financial data providers such as Yahoo Finance.
