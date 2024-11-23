@@ -1,37 +1,57 @@
 
 
-Développement d’un Algorithme pour la Détection d’Anomalies sur le Marché de l’Or
+# Development of an Algorithm for Anomaly Detection in the Gold Market
 
+## Introduction
+The goal is to develop an algorithm capable of detecting anomalies in the gold market by analyzing historical price data. The project leverages path signatures, a mathematical framework that captures complex, non-linear patterns and interactions within time series data.
+
+## Step 1: Data Collection
+Source: Historical gold price data is collected from reliable financial data providers such as Yahoo Finance.
+Timeframe: Data from January 2022 to October 2024 with a daily frequency is used to capture medium-term trends and dynamics.
+Features Collected:
+Gold spot price (Close, High, Low, and Open).
+Trading volume (Volume).
+Timestamp (Date).
+
+
+Updated Project Description (English)
+Development of an Algorithm for Anomaly Detection in the Gold Market
 Introduction
+The goal is to develop an algorithm capable of detecting anomalies in the gold market by analyzing historical price data. The project leverages path signatures, a mathematical framework that captures complex, non-linear patterns and interactions within time series data.
 
-L’objectif est de développer un algorithme capable de détecter des anomalies sur le marché de l’or en analysant les données historiques des cours de l’or. Pour ce faire, nous utiliserons la technique des signatures de chemin, qui permet de capturer les interactions complexes et les motifs non linéaires dans les séries temporelles.
+Step 1: Data Collection
+Source: Historical gold price data is collected from reliable financial data providers such as Yahoo Finance.
+Timeframe: Data from January 2022 to October 2024 with a daily frequency is used to capture medium-term trends and dynamics.
+Features Collected:
+- Gold spot price (Close, High, Low, and Open).
+- Trading volume (Volume).
+- Timestamp (Date).
 
-Étape 1 : Collecte et Prétraitement des Données
+## Step 2: Feature Engineering
+Derived metrics are created to enrich the dataset, enabling deeper insights into market behavior:
 
-1.1. Raw data collection
-	•	Sources de données : Obtenez les données historiques des cours de l’or auprès de sources fiables telles que Bloomberg, Reuters, ou des banques de données financières.
-	•	Période d’analyse : Déterminez la période d’analyse (par exemple, les 5 dernières années) et la fréquence des données (par exemple, données intrajournalières toutes les 15 minutes).
+-Daily Returns: Captures short-term price momentum as the percentage change in the closing price.
+-20-Day Moving Average: Highlights longer-term trends by smoothing price fluctuations.
+-Log Mid-Price: Logarithm of the mid-price (average of High and Low), which stabilizes variance and converts multiplicative price changes into additive ones.
+-Spread: Difference between High and Low prices, indicating market volatility.
+-Imbalance: Relative volume difference between consecutive intervals, providing insights into market sentiment.
 
-1.2. Features extracted
-	•	Prix de l’or : Prix spot de l’or en dollars américains par once.
-	•	Volume de trading : Si disponible, le volume des transactions sur les marchés de l’or.
-	•	Données macroéconomiques : Taux de change USD, indices boursiers, taux d’intérêt, etc., si vous souhaitez enrichir le modèle.
-	•	Horodatage : Date et heure de chaque enregistrement.
+## Step 3: Data Normalization
+The derived metrics and raw features are normalized to ensure compatibility with machine learning models:
 
-1.3. Raw features preprocessing: This section contains raw financial data is preprocessing and transsformation into streams that are ready for signature computation. This involves steps such as normalization, transformation of features, and applying the lead-lag transformation to capture temporal dynamics.
-	•	Verify there is no missing values
-	•	Visualisation of data to identify trends or outliers
-	•	Normalisation :
-Normalized time
-Normalized logarithm of mid-price
-​
- 
-	•	Échelle des variables : Normalisez les variables pour qu’elles aient une moyenne nulle et une variance unitaire, ce qui facilite la convergence des algorithmes d’apprentissage.
-	•	Transformation log : Appliquez une transformation logarithmique sur les prix pour stabiliser la variance.
+- Normalized Time: Scaled to [0, 1] to standardize temporal information.
+- Normalized Log Mid-Price: Normalized to zero mean and unit variance, capturing central price dynamics.
+- Normalized Spread, Imbalance, and Daily Returns: Standardized to remove scale effects and emphasize relative variability.
+- Normalized Moving Average: Standardizes long-term trends for consistency across the dataset.
 
+##Step 4: Lead-Lag Transformation
+To better capture temporal dynamics, the lead-lag transformation is applied:
+
+Each point is duplicated into "lead" (current observation) and "lag" (previous observation) values, creating a zigzag-like path.
+This transformation ensures compatibility with path signature models, allowing them to process time-series data effectively.
 
 
-Étape 2 : Construction du Chemin Multidimensionnel
+### Étape 2 : Construction du Chemin Multidimensionnel
 
 2.1. Représentation du Chemin
 	•	Chemin en \mathbb{R}^n : Représentez les données prétraitées comme un chemin continu dans un espace multidimensionnel, où chaque dimension correspond à une variable.
