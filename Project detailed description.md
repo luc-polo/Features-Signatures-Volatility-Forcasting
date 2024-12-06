@@ -71,14 +71,3 @@ By transforming and normalizing the data, downstream tasks like machine learning
 
 
 
-
-
-
-
-
-
-
-
-
-
-ChatGPT peut faire des erreurs. Envisagez de vérifier les informations importan
