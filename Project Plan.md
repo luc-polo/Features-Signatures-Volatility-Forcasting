@@ -25,7 +25,7 @@ Derived metrics are created to enrich the dataset, enabling deeper insights into
 -Spread: Difference between High and Low prices, indicating market volatility.
 -Imbalance: Relative volume difference between consecutive intervals, providing insights into market sentiment.
 
-## Step 3: Data Normalization
+### Step 3: Data Normalization
 The derived metrics and raw features are normalized to ensure compatibility with machine learning models:
 
 - Normalized Time: Scaled to [0, 1] to standardize temporal information.
