@@ -20,7 +20,9 @@ Timestamp (Date).
 Derived metrics are created to enrich the dataset, enabling deeper insights into market behavior:
 
 -Daily Returns: Captures short-term price momentum as the percentage change in the closing price.
+
 -20-Day Moving Average: Highlights longer-term trends by smoothing price fluctuations.
+
 -Log Mid-Price: Logarithm of the mid-price (average of High and Low), which stabilizes variance and converts multiplicative price changes into additive ones.
 -Spread: Difference between High and Low prices, indicating market volatility.
 -Imbalance: Relative volume difference between consecutive intervals, providing insights into market sentiment.
