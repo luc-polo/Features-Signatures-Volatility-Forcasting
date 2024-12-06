@@ -20,12 +20,16 @@ Timestamp (Date).
 Derived metrics are created to enrich the dataset, enabling deeper insights into market behavior:
 
 -Daily Returns: Captures short-term price momentum as the percentage change in the closing price.
+
 -20-Day Moving Average: Highlights longer-term trends by smoothing price fluctuations.
+
 -Log Mid-Price: Logarithm of the mid-price (average of High and Low), which stabilizes variance and converts multiplicative price changes into additive ones.
+
 -Spread: Difference between High and Low prices, indicating market volatility.
+
 -Imbalance: Relative volume difference between consecutive intervals, providing insights into market sentiment.
 
-## Step 3: Data Normalization
+### Step 3: Data Normalization
 The derived metrics and raw features are normalized to ensure compatibility with machine learning models:
 
 - Normalized Time: Scaled to [0, 1] to standardize temporal information.
