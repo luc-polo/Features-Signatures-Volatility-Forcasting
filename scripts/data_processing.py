@@ -29,8 +29,6 @@ def add_metrics(data):
     data["Imbalance"] = (data["Volume"] - data["Volume"].shift(1)) / (
         data["Volume"] + data["Volume"].shift(1)
     )
-    data["Imbalance"] = data["Imbalance"].fillna(0)  # Handle missing values in imbalance
-
     return data
 
 
@@ -115,41 +113,55 @@ def normalize_features(data):
 
 
 
-def apply_lead_lag(data):
-    """
-    Applies a lead-lag transformation to create a zigzag-like path for normalized features.
-    This duplicates each row of the DataFrame into "lead" and "lag" values to simulate
-    a continuous zigzag path. It also creates specific columns for visualization.
+def apply_lead_lag(data, lead_lag_columns=None):
+    # Sort the data by its index
+    data = data.sort_index()
     
-    Parameters:
-        data (pd.DataFrame): The original data with normalized features.
+    # If no columns specified, apply the transformation to all columns
+    if lead_lag_columns is None:
+        lead_lag_columns = data.columns.tolist()
+        
+    # Columns for Lead-Lag transformation
+    ll = [c for c in lead_lag_columns if c in data.columns]
+    # Other columns not included in Lead-Lag transformation
+    lo = [c for c in data.columns if c not in ll]
 
-    Returns:
-        pd.DataFrame: A DataFrame with the lead-lag transformation applied.
-    """
-    # Initialize an empty DataFrame for the lead-lag path
-    lead_lag_path = pd.DataFrame()
+    # Return an empty DataFrame if input is empty
+    if data.empty:
+        return pd.DataFrame()
 
-    # Create a "lagged" DataFrame by shifting the original data
-    lag_data = data.shift(1)
-    lag_data["Type"] = "Lag"
+    rows = []
+    
+    # First row initialization (t_1)
+    first = data.iloc[0]
+    row_init = {}
+    for c in ll:
+        row_init[c + "_Lag"], row_init[c + "_Lead"] = first[c], first[c]
+    for c in lo:
+        row_init[c + "_Lead"] = first[c]
+    rows.append((data.index[0], row_init))
 
-    # Create a "lead" DataFrame from the original data
-    lead_data = data.copy()
-    lead_data["Type"] = "Lead"
+    # For each interval [t_{i-1}, t_i], add two rows
+    for i in range(1, len(data)):
+        prev, curr = data.iloc[i-1], data.iloc[i]
+        
+        # Row A: Values from [t_{i-1}, t_i]
+        rowA = {}
+        for c in ll:
+            rowA[c + "_Lag"], rowA[c + "_Lead"] = prev[c], curr[c]
+        for c in lo:
+            rowA[c + "_Lead"] = curr[c]
+        rows.append((data.index[i], rowA))
 
-    # Concatenate lead and lag data alternately to create the zigzag path
-    lead_lag_path = pd.concat([lag_data, lead_data]).sort_index().reset_index(drop=True)
+        # Row B: Values from [t_i, t_i]
+        rowB = {}
+        for c in ll:
+            rowB[c + "_Lag"], rowB[c + "_Lead"] = curr[c], curr[c]
+        for c in lo:
+            rowB[c + "_Lead"] = curr[c]
+        rows.append((data.index[i], rowB))
 
-    # Handle the first row where the lag data would have NaN values (duplicate the first lead row)
-    lead_lag_path.iloc[0] = lead_data.iloc[0]
+    # Build the final DataFrame
+    return pd.DataFrame([r[1] for r in rows], index=[r[0] for r in rows])
 
-    # Explicitly create a column for "Lead-Lag Mid-Price" if "Normalized Log Mid-Price" exists
-    if "Normalized Log Mid-Price" in lead_lag_path.columns:
-        lead_lag_path["Lead-Lag Mid-Price"] = lead_lag_path["Normalized Log Mid-Price"]
 
-    # Debugging information: Show the first few rows of both lead and lag sections
-    print("Lead-Lag Transformation Applied: Preview of DataFrame:")
-    print(lead_lag_path.groupby("Type").head(3))  # Display a preview of lead and lag rows
-
-    return lead_lag_path

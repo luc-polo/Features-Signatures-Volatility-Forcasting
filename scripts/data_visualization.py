@@ -102,44 +102,26 @@ def plot_boxplots(data, columns=None, plots_per_column=3):
     plt.show()
 
 
-def plot_lead_lag(data, original_column, transformed_column):
+def plot_lead_lag(data, variables, start=0, end=20):
     """
-    Plots the original normalized data and its lead-lag transformed counterpart.
-
+    Plot lead and lag data for specified variables over a specified range.
+    
     Parameters:
-        data (pd.DataFrame): The lead-lag transformed DataFrame.
-        original_column (str): Column name for the original data.
-        transformed_column (str): Column name for the lead-lag transformed data.
+    - data: DataFrame returned by apply_lead_lag.
+    - variables: List of variable names (without '_Lead' or '_Lag').
+    - start: Start index for the interval to plot (default is 0).
+    - end: End index for the interval to plot (default is 20).
     """
-    import matplotlib.pyplot as plt
+    # Slice the data to the desired interval
+    sliced_data = data.iloc[start:end]
 
-    # Separate data into lead and lag rows
-    lead_data = data[data["Type"] == "Lead"]
-    lag_data = data[data["Type"] == "Lag"]
-
-    # Ensure indices match for both lead and lag DataFrames
-    lead_x = lead_data.index
-    lead_y = lead_data[transformed_column]
-    lag_x = lag_data.index
-    lag_y = lag_data[transformed_column]
-
-    # Plot the original normalized column (based on lead values for consistency)
-    plt.figure(figsize=(12, 6))
-    plt.subplot(1, 2, 1)
-    plt.plot(lead_x, lead_data[original_column].values, label="Original (Lead Values)", color="blue")
-    plt.title(f"Original {original_column}")
-    plt.xlabel("Time")
-    plt.ylabel(original_column)
-    plt.legend()
-
-    # Plot lead-lag transformed columns
-    plt.subplot(1, 2, 2)
-    plt.plot(lead_x, lead_y, label="Lead", color="blue")
-    plt.plot(lag_x, lag_y, label="Lag", color="orange", linestyle="--")
-    plt.title(f"Lead-Lag Transformation of {original_column}")
-    plt.xlabel("Time")
-    plt.ylabel(transformed_column)
-    plt.legend()
-
-    plt.tight_layout()
-    plt.show()
+    for var in variables:
+        plt.figure(figsize=(8, 4))
+        plt.plot(sliced_data.index, sliced_data[f"{var}_Lag"], label=f"{var} Lag", linestyle="--")
+        plt.plot(sliced_data.index, sliced_data[f"{var}_Lead"], label=f"{var} Lead", linestyle="-")
+        plt.title(f"Lead and Lag for {var} (from {start} to {end})")
+        plt.xlabel("Index")
+        plt.ylabel("Value")
+        plt.legend()
+        plt.grid(True)
+        plt.show()

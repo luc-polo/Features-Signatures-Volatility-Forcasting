@@ -34,20 +34,18 @@ plot_boxplots(gold_data, plots_per_column=8)
 # Time, Log Mid-Price, Spread, Imbalance, Cumulative Volume, Daily Returns, and Moving Average (20 days).
 gold_data, normalized_data = normalize_features(gold_data)
 
-# Step 4: Apply lead-lag transformation
-# The lead-lag transformation creates a zigzag-like path by duplicating each point
-# into a "lead" value (current observation) and a "lag" value (previous observation).
-# This transformation ensures compatibility with path-based models like signatures.
-lead_lag_data = apply_lead_lag(normalized_data)
-
-
-# Visualize the transformations
-plot_lead_lag(
-    lead_lag_data,
-    original_column="Normalized Log Mid-Price",  # Fix column name here
-    transformed_column="Lead-Lag Mid-Price",
-)
 
 # Print column names of gold_data and normalized_data for verification
 print("Columns in gold_data:", gold_data.columns)
 print("Columns in normalized_data:", normalized_data.columns)
+
+# Step 4: Apply lead-lag transformation
+# The lead-lag transformation creates a zigzag-like path by duplicating each point
+# into a "lead" value (current observation) and a "lag" value (previous observation).
+# This transformation allows to capture quadratic components of the series
+lead_lag_data = apply_lead_lag(normalized_data, lead_lag_columns=['Normalized Log Mid-Price'])
+
+
+# Visualize the transformations
+plot_lead_lag(lead_lag_data,["Normalized Log Mid-Price"])
+
