@@ -114,6 +114,21 @@ def normalize_features(data):
 
 
 def apply_lead_lag(data, lead_lag_columns=None):
+    """
+    Applies a Lead-Lag transformation to specified columns of a DataFrame.
+
+    For each selected column, adds:
+        - `<column>_Lag`: The value from the previous time step.
+        - `<column>_Lead`: The value from the current or next time step.
+
+    Parameters:
+        data (pd.DataFrame): The input time-series data.
+        lead_lag_columns (list, optional): Columns to apply the transformation. 
+                                           Defaults to all columns.
+
+    Returns:
+        pd.DataFrame: A DataFrame with added `_Lag` and `_Lead` columns for specified variables.
+    """
     # Sort the data by its index
     data = data.sort_index()
     
