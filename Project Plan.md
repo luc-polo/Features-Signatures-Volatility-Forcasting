@@ -1,57 +1,49 @@
 
 
-Développement d’un Algorithme pour la Détection d’Anomalies sur le Marché de l’Or
+# Development of an Algorithm for Anomaly Detection in the Gold Market
 
-Introduction
+## Introduction
+The goal is to develop an algorithm capable of detecting anomalies in the gold market by analyzing historical financial metrics. The project is based on path signatures exploitation which allows to capture non-linear patterns and interactions within time series data.
 
-L’objectif est de développer un algorithme capable de détecter des anomalies sur le marché de l’or en analysant les données historiques des cours de l’or. Pour ce faire, nous utiliserons la technique des signatures de chemin, qui permet de capturer les interactions complexes et les motifs non linéaires dans les séries temporelles.
+## I) Work on data
 
-Étape 1 : Collecte et Prétraitement des Données
-
-1.1. Collecte des Données
-	•	Sources de données : Obtenez les données historiques des cours de l’or auprès de sources fiables telles que Bloomberg, Reuters, ou des banques de données financières.
-	•	Période d’analyse : Déterminez la période d’analyse (par exemple, les 5 dernières années) et la fréquence des données (par exemple, données intrajournalières toutes les 15 minutes).
-
-1.2. Variables à Inclure
-	•	Prix de l’or : Prix spot de l’or en dollars américains par once.
-	•	Volume de trading : Si disponible, le volume des transactions sur les marchés de l’or.
-	•	Données macroéconomiques : Taux de change USD, indices boursiers, taux d’intérêt, etc., si vous souhaitez enrichir le modèle.
-	•	Horodatage : Date et heure de chaque enregistrement.
-
-1.3. Prétraitement des Données
-	•	Gestion des données manquantes :
-	•	Interpolation : Remplissez les valeurs manquantes par interpolation linéaire ou utilisez des méthodes plus avancées comme l’imputation par modèles.
-	•	Suppression : Si les données manquantes sont peu nombreuses, vous pouvez les supprimer.
-	•	Nettoyage des données :
-	•	Détection des anomalies évidentes : Supprimez les valeurs aberrantes évidentes qui résultent d’erreurs de saisie ou de transmission.
-	•	Normalisation :
-	•	Échelle des variables : Normalisez les variables pour qu’elles aient une moyenne nulle et une variance unitaire, ce qui facilite la convergence des algorithmes d’apprentissage.
-	•	Transformation log : Appliquez une transformation logarithmique sur les prix pour stabiliser la variance.
-
-Étape 2 : Construction du Chemin Multidimensionnel
-
-2.1. Représentation du Chemin
-	•	Chemin en \mathbb{R}^n : Représentez les données prétraitées comme un chemin continu dans un espace multidimensionnel, où chaque dimension correspond à une variable.
-	•	Variables à inclure dans le chemin :
-	•	X_t = [\text{Temps normalisé}, \text{Prix de l{\prime}or}, \text{Volume}, \text{Autres variables}]
-
-2.2. Transformation Lead-Lag
-	•	Objectif : La transformation lead-lag permet de capturer les dépendances temporelles fines et les variations abruptes en doublant les dimensions du chemin.
-	•	Procédure :
-	•	Création des variables lead et lag : Pour chaque variable  X , créez  X_{\text{lead}}  (valeur avancée d’un pas de temps) et  X_{\text{lag}}  (valeur actuelle).
-	•	Construction du chemin lead-lag : Le chemin final aura des dimensions  [X_{\text{lead}}, X_{\text{lag}}]  pour chaque variable.
-
-2.3. Chemin Final
-	•	Exemple de chemin final :
-
-\text{Chemin}t = [\text{Temps}{\text{lead}}, \text{Temps}{\text{lag}}, \text{Prix}{\text{lead}}, \text{Prix}{\text{lag}}, \text{Volume}{\text{lead}}, \text{Volume}_{\text{lag}}, \dots]
+### Step 1: Data Collection
+Source: Historical gold price data collected on Yahoo Finance.
+Timeframe: Data from January 2022 to October 2024 with a daily frequency is used to capture medium-term trends and dynamics.
+Features Collected:
+Gold spot price (Close, High, Low, and Open).
+Trading volume (Volume).
+Timestamp (Date).
 
 
-Étape 3 : Calcul de la Signature du Chemin
+### Step 2: Feature Engineering
+Derived metrics are created to enrich the dataset, enabling deeper insights into market behavior:
 
-3.1. Choix du Niveau de Troncature
-	•	Niveau de signature : Décidez jusqu’à quel niveau  n  vous souhaitez calculer la signature. Un niveau plus élevé capture des interactions plus complexes mais augmente la dimensionnalité.
-	•	Recommandation : Commencez par un niveau 4 ou 5 pour un bon compromis entre complexité et expressivité.
+-Daily Returns: Captures short-term price momentum as the percentage change in the closing price.
+-20-Day Moving Average: Highlights longer-term trends by smoothing price fluctuations.
+-Log Mid-Price: Logarithm of the mid-price (average of High and Low), which stabilizes variance and converts multiplicative price changes into additive ones.
+-Spread: Difference between High and Low prices, indicating market volatility.
+-Imbalance: Relative volume difference between consecutive intervals, providing insights into market sentiment.
+
+## Step 3: Data Normalization
+The derived metrics and raw features are normalized to ensure compatibility with machine learning models:
+
+- Normalized Time: Scaled to [0, 1] to standardize temporal information.
+- Normalized Log Mid-Price: Normalized to zero mean and unit variance, capturing central price dynamics.
+- Normalized Spread, Imbalance, and Daily Returns: Standardized to remove scale effects and emphasize relative variability.
+- Normalized Moving Average: Standardizes long-term trends for consistency across the dataset.
+
+### Step 4: Lead-Lag Transformation
+To better capture temporal dynamics, the lead-lag transformation is applied:
+Each point is duplicated into "lead" (current observation) and "lag" (previous observation) values, creating a zigzag-like path.
+This transformation ensures compatibility with path signature models, allowing them to process time-series data effectively.
+
+
+## II) Path signature computation
+
+3.1. Choosing the Truncation Level
+Signature Level: Decide the level n up to which the signature should be computed. Higher levels capture more complex interactions but increase dimensionality.
+We will start with level 4 or 5 for a good balance between complexity and expressiveness.
 
 3.2. Calcul de la Signature
 	•	Bibliothèques à utiliser :
