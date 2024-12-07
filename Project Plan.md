@@ -38,9 +38,11 @@ The derived metrics and raw features are normalized to ensure compatibility with
 - Normalized Moving Average: Standardizes long-term trends for consistency across the dataset.
 
 ### Step 4: Lead-Lag Transformation
-To better capture temporal dynamics, the lead-lag transformation is applied:
-Each point is duplicated into "lead" (current observation) and "lag" (previous observation) values, creating a zigzag-like path.
-This transformation ensures compatibility with path signature models, allowing them to process time-series data effectively.
+To incorporate quadratic variation into the path signature, enriching the model's ability to capture complex temporal dynamics in the data, we apply the lead-lag transformation to some features:
+For features selected , each point is duplicated into "lead" (current observation) and "lag" (previous observation) values, creating a zigzag-like path. The output is two columns of length (2*n)-1 for each feature, one colomn named lead and the other one lag.
+
+We apply the lead-lag transformation only to the Log Mid-Price because it captures central price dynamics that are most critical for representing the temporal evolution of the market. Applying the transformation to this variable maximizes the utility of the quadratic variation introduced by the lead-lag structure, which is less meaningful for features that represent isolated, non-cumulative events.
+For other variables, to ensure consistency with lead-lag transformation of log mid-price, we duplicate all data points to create a lead column of length (2*n)-1, allowing all features to align temporally with the transformed Log Mid-Price. 
 
 
 ## II) Path signature computation
