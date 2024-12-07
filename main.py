@@ -40,12 +40,9 @@ print("Columns in gold_data:", gold_data.columns)
 print("Columns in normalized_data:", normalized_data.columns)
 
 # Step 4: Apply lead-lag transformation
-# The lead-lag transformation creates a zigzag-like path by duplicating each point
-# into a "lead" value (current observation) and a "lag" value (previous observation).
-# This transformation allows to capture quadratic components of the series
 lead_lag_data = apply_lead_lag(normalized_data, lead_lag_columns=['Normalized Log Mid-Price'])
 
 
-# Visualize the transformations
+# Visualize the transformed features lead-lag
 plot_lead_lag(lead_lag_data,["Normalized Log Mid-Price"])
 
