@@ -48,8 +48,8 @@ For other variables, to ensure consistency with lead-lag transformation of log m
 ## II) Path signature computation
 
 3.1. Choosing the Truncation Level
-Signature Level: Decide the level n up to which the signature should be computed. Higher levels capture more complex interactions but increase dimensionality.
-We will start with level 4 for a good balance between complexity and expressiveness.
+Signature Level: Higher signature levels capture more complex interactions but increase dimensionality.
+We will start with level 3 for a good balance between complexity and expressiveness.
 
 3.2. Signature Computation
 	•	Bibliothèques à utiliser :
