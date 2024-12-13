@@ -115,6 +115,8 @@ def plot_lead_lag(data, variables, start=0, end=20):
     # Slice the data to the desired interval
     sliced_data = data.iloc[start:end]
 
+    sliced_data = sliced_data.reset_index(drop=True)
+
     for var in variables:
         plt.figure(figsize=(8, 4))
         plt.plot(sliced_data.index, sliced_data[f"{var}_Lag"], label=f"{var} Lag", linestyle="--")
