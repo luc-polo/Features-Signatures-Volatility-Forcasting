@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-
+import esig.tosig as ts
 
 def add_metrics(data):
     """
@@ -180,3 +180,26 @@ def apply_lead_lag(data, lead_lag_columns=None):
     return pd.DataFrame([r[1] for r in rows], index=[r[0] for r in rows])
 
 
+
+
+def compute_signature(data, order):
+    """
+    Compute the signature of the given data up to a specified order.
+
+    Parameters:
+        data (pd.DataFrame): Input time-series data (e.g., lead-lag transformed data).
+        order (int): The order of the signature to compute.
+
+    Returns:
+        np.ndarray: The computed signature.
+    """
+    # Ensure data is sorted by index
+    data = data.sort_index()
+
+    # Convert the DataFrame to a NumPy array (required by `esig`)
+    path = data.values
+
+    # Compute the signature up to the specified order
+    signature = ts.stream2sig(path, order)
+    
+    return signature

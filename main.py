@@ -47,8 +47,12 @@ print("Columns in normalized_data:", normalized_data.columns)
 # Step 4: Apply lead-lag transformation
 lead_lag_data = apply_lead_lag(normalized_data, lead_lag_columns=['Normalized Log Mid-Price'])
 
-
 # Visualize the transformed features lead-lag
 plot_lead_lag(lead_lag_data,["Normalized Log Mid-Price"])
 
-print(lead_lag_data)
+# Compute the signature of order 3 for the lead-lag data
+signature_order_3 = compute_signature(lead_lag_data[['Normalized Log Mid-Price_Lag', 'Normalized Log Mid-Price_Lead']], order=3)
+
+# Print the resulting signature
+print("Signature of order 3:")
+print(signature_order_3)
