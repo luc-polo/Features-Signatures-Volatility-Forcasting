@@ -1,0 +1,2 @@
+Version: 1.8.2
+Arguments: ['C:\\Users\\runneradmin\\AppData\\Local\\Temp\\cibw-run-yag0t2yt\\cp312-win_amd64\\build\\venv\\Scripts\\delvewheel', 'repair', '-w', 'C:\\Users\\runneradmin\\AppData\\Local\\Temp\\cibw-run-yag0t2yt\\cp312-win_amd64\\repaired_wheel', '--exclude', 'mkl_core.2.dll', '--exclude', 'mkl_intel_thread.2.dll', '--exclude', 'libiomp5md.dll', 'C:\\Users\\runneradmin\\AppData\\Local\\Temp\\cibw-run-yag0t2yt\\cp312-win_amd64\\built_wheel\\pyrecombine-1.0.0-cp312-cp312-win_amd64.whl']
