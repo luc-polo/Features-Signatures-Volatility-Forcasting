@@ -5,7 +5,7 @@ The project focuses on forcasting volatility of financial time series and detect
 - Lead-Lag transformation
 - Path Signature
 - Volatility
-- 
+- Unsupervised classification
 
 ### Repository Structure:
 - 
