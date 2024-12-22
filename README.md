@@ -10,9 +10,9 @@ Unsupervised Classification:
 ### Repository Structure:
 - main.py: The main script to execute the project pipeline, from data preprocessing to anomaly detection and visualization.
 - Script: Folder containing python files called in main.py
-  data_loader.py: Handles data collection and loading from external sources (e.g., Yahoo Finance).
-  data_processing.py: Conducts feature engineering, normalization, and lead-lag transformation.
-  data_visualization.py: Contains utilities for visualizing anomalies, volatility trends, and market behaviors.
+  - data_loader.py: Handles data collection and loading from external sources (e.g., Yahoo Finance).
+  - data_processing.py: Conducts feature engineering, normalization, and lead-lag transformation.
+  - data_visualization.py: Contains utilities for visualizing anomalies, volatility trends, and market behaviors.
 - Project Plan.md: A detailed document outlining the development process, methodologies, and objectives.
 
 ### How to Execute the Code?
