@@ -9,7 +9,7 @@ The project focuses on forcasting volatility of financial time series and detect
 
 ### Repository Structure:
 - main.py: Python file to run the code
--
+- script
 
 ### How to Execute the Code?
 
