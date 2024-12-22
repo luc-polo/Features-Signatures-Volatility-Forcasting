@@ -8,7 +8,7 @@ The project focuses on forcasting volatility of financial time series and detect
 - Unsupervised classification
 
 ### Repository Structure:
-- main.py: change
+- main.py: Python file to run the code
 -
 
 ### How to Execute the Code?
