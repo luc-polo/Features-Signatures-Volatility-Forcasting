@@ -57,4 +57,4 @@ signature_order_3 = compute_signature(lead_lag_data[['Normalized Log Mid-Price_L
 print("Signature of order 3:")
 print(signature_order_3)
 
-grjgb
+
