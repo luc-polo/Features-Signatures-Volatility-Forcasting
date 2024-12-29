@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
-import esig.tosig as ts
+import esig  # Remplacez `import esig.tosig as ts` par ceci
+from esig import *
 
 def add_metrics(data):
     """
@@ -200,6 +201,6 @@ def compute_signature(data, order):
     path = data.values
 
     # Compute the signature up to the specified order
-    signature = ts.stream2sig(path, order)
+    signature = stream2sig(path, order)
     
     return signature
