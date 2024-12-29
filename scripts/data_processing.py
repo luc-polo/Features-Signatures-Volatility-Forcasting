@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
-import esig  # Remplacez `import esig.tosig as ts` par ceci
-from esig import *
+import esig.tosig as ts
 
 def add_metrics(data):
     """
@@ -32,8 +31,6 @@ def add_metrics(data):
     )
     return data
 
-
-
 def missing_values_checking(data):
     """Check for missing values in our dataset."""
     if data.isnull().any().any():
@@ -41,7 +38,6 @@ def missing_values_checking(data):
         print(data.isnull().sum())  # Show count of missing values per column
     else:
         print("No missing values detected.")
-
 
 def normalize_features(data):
     """
@@ -112,8 +108,6 @@ def normalize_features(data):
 
     return gold_data, normalized_data
 
-
-
 def apply_lead_lag(data, lead_lag_columns=None):
     """
     Applies a Lead-Lag transformation to specified columns of a DataFrame.
@@ -180,9 +174,6 @@ def apply_lead_lag(data, lead_lag_columns=None):
     # Build the final DataFrame
     return pd.DataFrame([r[1] for r in rows], index=[r[0] for r in rows])
 
-
-
-
 def compute_signature(data, order):
     """
     Compute the signature of the given data up to a specified order.
@@ -201,6 +192,6 @@ def compute_signature(data, order):
     path = data.values
 
     # Compute the signature up to the specified order
-    signature = stream2sig(path, order)
+    signature = ts.stream2sig(path, order)
     
     return signature
