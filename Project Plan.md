@@ -4,7 +4,7 @@
 
 ## Introduction
 The goal is to develop an algorithm capable of detecting anomalies in the gold market by analyzing historical financial metrics. The project is based on path signatures exploitation which allows to capture non-linear patterns and interactions within time series data.
-
+ rgqrg
 ## I) Work on data
 
 ### Step 1: Data Collection
