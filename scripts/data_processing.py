@@ -1,35 +1,56 @@
 import numpy as np
 import pandas as pd
 import esig.tosig as ts
+from sklearn.preprocessing import StandardScaler
 
 def add_metrics(data):
     """
-    Adds derived metrics to the dataset, such as daily returns, moving averages,
-    log mid-price, spread, and imbalance.
-    
+    Adds derived metrics to the dataset:
+      - Log Price: log of the closing price
+      - Log Return: difference of Log Price (daily log return)
+      - Moving Average (20 days)
+      - Log Mid-Price: log of the average (High + Low)/2
+      - Log Mid-Price Return: difference of Log Mid-Price (log return)
+      - Spread: difference between High and Low
+      - Imbalance: relative volume difference between two consecutive days
+
+    Note: the Daily Returns column is no longer kept in the final dataset.
+
     Parameters:
         data (pd.DataFrame): The original dataset.
 
     Returns:
-        pd.DataFrame: The dataset with added metrics.
+        pd.DataFrame: The dataset with the new metrics added.
     """
-    # Add daily returns
-    data["Daily Returns"] = data["Close"].pct_change()
+    # Log Price
+    data["Log Price"] = np.log(data["Close"])
 
-    # Add moving average (20-day rolling mean of the close price)
+    # Log Return (daily difference of Log Price)
+    data["Log Return"] = data["Log Price"] - data["Log Price"].shift(1)
+
+    # Moving Average (20-day rolling mean of the closing price)
     data["Moving Average (20 days)"] = data["Close"].rolling(window=20).mean()
 
-    # Add log mid-price (logarithm of the average of High and Low prices)
+    # Log Mid-Price
     data["Log Mid-Price"] = np.log(0.5 * (data["High"] + data["Low"]))
 
-    # Add spread (difference between High and Low prices)
+    # Log Mid-Price Return
+    data["Log Mid-Price Return"] = data["Log Mid-Price"] - data["Log Mid-Price"].shift(1)
+
+    # Spread (High - Low)
     data["Spread"] = data["High"] - data["Low"]
 
-    # Add imbalance (relative difference in volume between consecutive time points)
+    # Imbalance: (Volume(t) - Volume(t-1)) / (Volume(t) + Volume(t-1))
     data["Imbalance"] = (data["Volume"] - data["Volume"].shift(1)) / (
         data["Volume"] + data["Volume"].shift(1)
     )
+
+    # If the Daily Returns column is still present, remove it
+    if "Daily Returns" in data.columns:
+        data.drop(columns=["Daily Returns"], inplace=True)
+
     return data
+
 
 def missing_values_checking(data):
     """Check for missing values in our dataset."""
@@ -39,74 +60,71 @@ def missing_values_checking(data):
     else:
         print("No missing values detected.")
 
+
 def normalize_features(data):
     """
-    Normalizes the dataset features, ensuring all metrics are scaled appropriately.
-    This includes transformations for time, log mid-price, spread, imbalance, and other features.
+    Normalizes selected features using scikit-learn's StandardScaler (or similar).
+    Also adds a normalized time column (manual min-max scaling for the index).
+
+    Features to be normalized with StandardScaler in this example:
+      - Log Mid-Price
+      - Log Return
+      - Log Mid-Price Return
+      - Spread
+      - Imbalance
+      - Volume (via cumulative volume if desired)
+      - Moving Average (20 days)
+
+    We separate at the end:
+      - gold_data: raw + minimal derived metrics
+      - normalized_data: only the normalized/transformed columns
 
     Parameters:
-        data (pd.DataFrame): The dataset with raw and derived metrics.
+        data (pd.DataFrame): The dataset with metrics added.
 
     Returns:
-        - gold_data: A DataFrame containing only raw and minimally derived metrics.
-        - normalized_data: A DataFrame containing only normalized and transformed features.
+        (pd.DataFrame, pd.DataFrame): (gold_data, normalized_data)
     """
-    # Start by making a copy of the input data
+
+    # Make a copy so as not to modify the original dataframe
     gold_data = data.copy()
 
-    # Normalize time (scaled to [0, 1])
-    gold_data["Normalized Time"] = (gold_data.index - gold_data.index[0]) / (
-        gold_data.index[-1] - gold_data.index[0]
+    # 1. Normalize time (index) with min-max scaling to [0, 1]
+    gold_data["Normalized Time"] = (
+        (gold_data.index - gold_data.index[0]) / (gold_data.index[-1] - gold_data.index[0])
     )
 
-    # Normalize log mid-price
-    gold_data["Normalized Log Mid-Price"] = (
-        gold_data["Log Mid-Price"] - np.mean(gold_data["Log Mid-Price"])
-    ) / np.std(gold_data["Log Mid-Price"])
+    # 2. StandardScaler for a selected set of columns
+    columns_to_scale = [
+        "Log Mid-Price",
+        "Log Return",
+        "Log Mid-Price Return",
+        "Spread",
+        "Imbalance",
+        "Moving Average (20 days)",
+        "Volume"
+    ]
 
-    # Normalize spread
-    gold_data["Normalized Spread"] = (
-        gold_data["Spread"] - np.mean(gold_data["Spread"])
-    ) / np.std(gold_data["Spread"])
+    # Prepare data for fitting
+    scaler = StandardScaler()
 
-    # Normalize imbalance
-    gold_data["Normalized Imbalance"] = (
-        gold_data["Imbalance"] - np.mean(gold_data["Imbalance"])
-    ) / np.std(gold_data["Imbalance"])
+    subset_for_scaling = gold_data[columns_to_scale]
 
-    # Normalize cumulative volume
-    gold_data["Normalized Volume"] = (
-        gold_data["Volume"].cumsum() / gold_data["Volume"].cumsum().iloc[-1]
-    )
+    scaled_values = scaler.fit_transform(subset_for_scaling)
 
-    # Normalize daily returns
-    gold_data["Normalized Daily Returns"] = (
-        gold_data["Daily Returns"] - gold_data["Daily Returns"].mean()
-    ) / gold_data["Daily Returns"].std()
+    # Store scaled values back under "Normalized <column>" names
+    for i, col in enumerate(columns_to_scale):
+        gold_data[f"Normalized {col}"] = scaled_values[:, i]
 
-    # Normalize moving average (20 days)
-    gold_data["Normalized Moving Average"] = (
-        gold_data["Moving Average (20 days)"]
-        - gold_data["Moving Average (20 days)"].mean()
-    ) / gold_data["Moving Average (20 days)"].std()
+    # Build the final DataFrame with only the normalized columns
+    normalized_cols = [f"Normalized {c}" for c in columns_to_scale] + ["Normalized Time"]
+    normalized_data = gold_data[normalized_cols].copy()
 
-    # Create a new DataFrame with only normalized and transformed features
-    normalized_data = gold_data[
-        [
-            "Normalized Time",
-            "Normalized Log Mid-Price",
-            "Normalized Spread",
-            "Normalized Imbalance",
-            "Normalized Volume",
-            "Normalized Daily Returns",
-            "Normalized Moving Average",
-        ]
-    ].copy()
-
-    # Drop normalized and transformed features from gold_data to keep it raw
-    gold_data = gold_data.drop(columns=normalized_data.columns)
+    # Drop them from gold_data to keep it as "unscaled" data
+    gold_data.drop(columns=normalized_cols, inplace=True, errors="ignore")
 
     return gold_data, normalized_data
+
 
 def apply_lead_lag(data, lead_lag_columns=None):
     """
@@ -173,6 +191,7 @@ def apply_lead_lag(data, lead_lag_columns=None):
 
     # Build the final DataFrame
     return pd.DataFrame([r[1] for r in rows], index=[r[0] for r in rows])
+
 
 def compute_signature(data, order):
     """
