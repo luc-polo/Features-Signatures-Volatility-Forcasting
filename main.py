@@ -1,5 +1,5 @@
 from scripts.data_loader import get_gold_data
-from scripts.data_processing import add_metrics, missing_values_checking, normalize_features, apply_lead_lag
+from scripts.data_processing import add_metrics, missing_values_checking, normalize_features, apply_lead_lag, compute_signature
 from scripts.data_visualization import plot_gold_price, plot_daily_returns, plot_boxplots, plot_lead_lag, plot_metrics
 
 # Increase the number of columns displayed by pandas
