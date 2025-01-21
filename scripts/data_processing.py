@@ -233,5 +233,5 @@ def compute_signature(df,
     
     # Assemblage final en un DataFrame
     signatures_df = pd.DataFrame(signature_data, index=df.index)
-    
+
     return signatures_df
