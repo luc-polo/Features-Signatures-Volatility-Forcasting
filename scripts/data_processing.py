@@ -2,22 +2,40 @@ import numpy as np
 import pandas as pd
 import esig.tosig as ts
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+
+
+# Helper function to compute forward (future) rolling volatility
+# excluding the current day. For row i, it calculates std of [i+1 ... i+w].
+def compute_future_volatility(log_return_series, window):
+    """
+    Computes the rolling standard deviation over the *next* `window` days,
+    excluding the current day. Returns a series aligned with the original index.
+    """
+    # Reverse the series
+    reversed_series = log_return_series[::-1]
+    # Shift by 1 to exclude the 'current' day in reversed coordinates
+    reversed_series_shifted = reversed_series.shift(1)
+    # Rolling std on the reversed, shifted series
+    reversed_rolling_std = reversed_series_shifted.rolling(window=window).std()
+    # Reverse back to align with the original index
+    return reversed_rolling_std[::-1]
 
 def add_metrics(data):
     """
     Adds derived metrics to the dataset:
-      - Log Price: log of the closing price
-      - Log Return: difference of Log Price (daily log return)
-      - Moving Average (20 days)
-      - Log Mid-Price: log of the average (High + Low)/2
-      - Log Mid-Price Return: difference of Log Mid-Price (log return)
-      - Spread: difference between High and Low
-      - Imbalance: relative volume difference between two consecutive days
-      - Volatility: annualized volatility over specified window sizes
-
+      - Log Price: Logarithm of the closing price.
+      - Log Return: Daily log return calculated as the difference of Log Price.
+      - Moving Average (20 days): 20-day rolling mean of the closing price.
+      - Log Mid-Price: Logarithm of the average of High and Low prices.
+      - Log Mid-Price Return: Daily log return of the Log Mid-Price.
+      - Spread: Difference between High and Low prices.
+      - Imbalance: Relative volume difference between consecutive days.
+      - Volatility (Past and Future): Annualized volatility over specified window sizes for both past and future days.
+    
     Parameters:
-        data (pd.DataFrame): The original dataset.
-
+        data (pd.DataFrame): The original dataset with columns ['High', 'Low', 'Close', 'Volume'].
+    
     Returns:
         pd.DataFrame: The dataset with the new metrics added.
     """
@@ -47,19 +65,22 @@ def add_metrics(data):
     # Volatility calculations for specified window sizes
     window_sizes = [10, 21, 50, 260]
     for w in window_sizes:
-        volatility_col = f"Volatility_{w}_days"
-        # Calculate rolling standard deviation of Log Return
-        data[volatility_col] = (
-            np.sqrt(252) * data["Log Return"].rolling(window=w).std()
-        )
+        # Past Volatility
+        past_vol_col = f"Volatility_Past_{w}_days"
+        data[past_vol_col] = np.sqrt(252) * data["Log Return"].rolling(window=w).std()
 
+        # Future Volatility (e.g. Volatility_Future_10_days), excluding current day
+        future_vol_col = f"Volatility_Future_{w}_days"
+        data[future_vol_col] = (
+            np.sqrt(252) * compute_future_volatility(data["Log Return"], w))
+    
     return data
 
 
-def remove_missing_rows(df: pd.DataFrame) -> pd.DataFrame:
+def remove_missing_rows(df: pd.DataFrame):
     """
     Removes all rows with any missing values from the DataFrame and displays
-    the number of rows removed and their original indices.
+    the number of rows removed, their original indices, and how many rows remain.
     
     Parameters:
         df (pd.DataFrame): The input DataFrame.
@@ -69,7 +90,9 @@ def remove_missing_rows(df: pd.DataFrame) -> pd.DataFrame:
     """
     missing_indices = df[df.isna().any(axis=1)].index
     print(f"Removed {len(missing_indices)} rows with missing values. Indices: {list(missing_indices)}")
-    return df.dropna()
+    df_cleaned = df.dropna()
+    print(f"Remaining rows in the DataFrame: {len(df_cleaned)}")
+    return df_cleaned
 
 def missing_values_checking(data):
     """Check for missing values in our dataset."""
@@ -250,3 +273,51 @@ def compute_signature(df,
     signatures_df = pd.DataFrame(signature_data, index=df.index)
 
     return signatures_df
+
+
+
+
+def split_train_test(original_df: pd.DataFrame, 
+                    signatures_df: pd.DataFrame, 
+                    target_df: pd.DataFrame, 
+                    target_name: str, 
+                    test_size: float = 0.2, 
+                    random_state: int = 42):
+    """
+    Splits the data into training and testing sets based on original features, signatures, and target.
+
+    Parameters:
+        original_df (pd.DataFrame): DataFrame containing original features (excluding the target).
+        signatures_df (pd.DataFrame): DataFrame containing signature features.
+        target_df (pd.DataFrame): DataFrame containing the target feature(s).
+        target_name (str): Name of the target column in target_df.
+        test_size (float, optional): Proportion of the dataset to include in the test split. Default is 0.2.
+        random_state (int, optional): Random state for reproducibility. Default is 42.
+
+    Returns:
+        tuple: A tuple containing:
+            - X_train (pd.DataFrame): Training predictors.
+            - X_test (pd.DataFrame): Testing predictors.
+            - Y_train (pd.Series): Training target.
+            - Y_test (pd.Series): Testing target.
+    """
+    # Step 1: Identify indices without any NaNs in signatures_df
+    valid_indices = signatures_df.dropna().index
+
+    # Step 2: Align original_df and target_df to these valid_indices
+    original_aligned = original_df.loc[valid_indices]
+    signatures_aligned = signatures_df.loc[valid_indices]
+    target_aligned = target_df.loc[valid_indices, target_name]
+
+    # Step 3: Combine original features and signatures
+    X_combined = pd.concat([original_aligned, signatures_aligned], axis=1)
+
+    # Step 4: Split into training and testing sets
+    X_train, X_test, Y_train, Y_test = train_test_split(
+        X_combined,
+        target_aligned,
+        test_size=test_size,
+        random_state=random_state
+    )
+
+    return X_train, X_test, Y_train, Y_test

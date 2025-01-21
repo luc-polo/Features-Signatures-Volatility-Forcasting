@@ -1,12 +1,14 @@
 import yfinance as yf
 import os
+import pandas as pd
+
+s = pd.Series([10, 20, 30, 40, 50, 60])
+
+# Fenêtre roulante sur les 2 prochaines valeurs pour la colonne 'A'
+#df['Future Rolling Mean'] = df.shift(-1).rolling(window=2).mean()
 
 
-
-GOLD_SYMBOL = 'GC=F'
-START_DATE = '2023-10-05'
-END_DATE = '2024-10-01'
-
-data = yf.download(GOLD_SYMBOL, start=START_DATE, end=END_DATE, interval = "1h",)
-
-print(data)
+print(s)
+print(s.shift(-1).rolling(window=2).mean())
+print(s.shift(-2).rolling(window=2).mean())
+print(s.shift(-3).rolling(window=2).mean())
