@@ -58,7 +58,8 @@ def add_metrics(data):
 
 def remove_missing_rows(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Removes all rows with any missing values from the DataFrame.
+    Removes all rows with any missing values from the DataFrame and displays
+    the number of rows removed and their original indices.
     
     Parameters:
         df (pd.DataFrame): The input DataFrame.
@@ -66,6 +67,8 @@ def remove_missing_rows(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: The DataFrame with rows containing NaNs removed.
     """
+    missing_indices = df[df.isna().any(axis=1)].index
+    print(f"Removed {len(missing_indices)} rows with missing values. Indices: {list(missing_indices)}")
     return df.dropna()
 
 def missing_values_checking(data):
