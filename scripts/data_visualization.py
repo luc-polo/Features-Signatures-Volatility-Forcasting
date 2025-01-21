@@ -1,39 +1,49 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import math
+import pandas as pd
+
+
 
 def plot_metrics(data):
     """
-    Plots multiple metrics (e.g., price, moving average...) in a single multi-panel figure.
+    Traces toutes les métriques numériques présentes dans le DataFrame sous forme de graphiques multi-panneaux 
+    avec les graduations des dates sur chaque axe des abscisses.
     
     Parameters:
-        data (pd.DataFrame): The dataset containing the metrics to plot.
+        data (pd.DataFrame): Le DataFrame contenant les métriques à tracer.
     """
-    # Define the metrics to plot
-    metrics = {
-        "Gold Price (Close)": "Close",
-        "20-Day Moving Average": "Moving Average (20 days)",
-        "Log Return": "Log Return",
-        "Log Mid-Price Return": "Log Mid-Price Return",
-        "Spread": "Spread",
-        "Imbalance": "Imbalance",
-    }
-
-    num_metrics = len(metrics)
-    fig, axes = plt.subplots(num_metrics, 1, figsize=(12, 4 * num_metrics), sharex=True)
-
-    for i, (title, column) in enumerate(metrics.items()):
+    # Sélectionner uniquement les colonnes numériques
+    numeric_cols = data.select_dtypes(include=[np.number]).columns.tolist()
+    
+    if not numeric_cols:
+        raise ValueError("Aucune colonne numérique trouvée dans le DataFrame pour le tracé.")
+    
+    # Définir la disposition des sous-graphiques (2 colonnes par défaut)
+    cols = 2
+    rows = math.ceil(len(numeric_cols) / cols)
+    fig, axes = plt.subplots(rows, cols, figsize=(15, 4 * rows), sharex=False)  # sharex=False pour avoir des axes x indépendants
+    axes = axes.flatten() if rows > 1 else [axes]
+    
+    # Tracer chaque colonne numérique avec les graduations des dates sur l'axe des abscisses
+    for i, col in enumerate(numeric_cols):
         ax = axes[i]
-        ax.plot(data.index, data[column], label=title, alpha=0.8)
-        ax.set_title(title, fontsize=14)
+        ax.plot(data.index, data[col], label=col, alpha=0.8)
+        ax.set_title(col, fontsize=14)
         ax.legend(loc="upper left")
         ax.grid(True, linestyle="--", alpha=0.6)
-        if i == num_metrics - 1:
-            ax.set_xlabel("Date")
-        ax.set_ylabel(column)
+        ax.set_ylabel(col)
+        ax.set_xlabel("Date")  # Ajouter "Date" sur tous les axes des abscisses
+        ax.tick_params(axis='x', rotation=45)  # Rotation des labels des dates pour une meilleure lisibilité
+    
+    # Supprimer les axes inutilisés si le nombre de graphiques n'est pas un multiple de cols
+    for j in range(len(numeric_cols), len(axes)):
+        fig.delaxes(axes[j])
     
     plt.tight_layout()
     plt.show()
+
+
 
 def plot_gold_price(data):
     """Plots the gold price with a 20-day moving average."""
@@ -87,7 +97,7 @@ def plot_boxplots(data, columns=None, plots_per_column=3):
 
 def plot_lead_lag(data, variables, start=0, end=20):
     """
-    Plot lead and lag data for specified variables over a specified range.
+    Plot lead and lag data for specified variables over a specified range. Just for checking it's well computed.
     
     Parameters:
     - data: DataFrame returned by apply_lead_lag.

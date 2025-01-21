@@ -56,6 +56,18 @@ def add_metrics(data):
     return data
 
 
+def remove_missing_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Removes all rows with any missing values from the DataFrame.
+    
+    Parameters:
+        df (pd.DataFrame): The input DataFrame.
+    
+    Returns:
+        pd.DataFrame: The DataFrame with rows containing NaNs removed.
+    """
+    return df.dropna()
+
 def missing_values_checking(data):
     """Check for missing values in our dataset."""
     if data.isnull().any().any():
