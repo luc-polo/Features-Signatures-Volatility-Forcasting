@@ -13,8 +13,7 @@ def add_metrics(data):
       - Log Mid-Price Return: difference of Log Mid-Price (log return)
       - Spread: difference between High and Low
       - Imbalance: relative volume difference between two consecutive days
-
-    Note: the Daily Returns column is no longer kept in the final dataset.
+      - Volatility: annualized volatility over specified window sizes
 
     Parameters:
         data (pd.DataFrame): The original dataset.
@@ -45,9 +44,14 @@ def add_metrics(data):
         data["Volume"] + data["Volume"].shift(1)
     )
 
-    # If the Daily Returns column is still present, remove it
-    if "Daily Returns" in data.columns:
-        data.drop(columns=["Daily Returns"], inplace=True)
+    # Volatility calculations for specified window sizes
+    window_sizes = [10, 21, 50, 260]
+    for w in window_sizes:
+        volatility_col = f"Volatility_{w}_days"
+        # Calculate rolling standard deviation of Log Return
+        data[volatility_col] = (
+            np.sqrt(252) * data["Log Return"].rolling(window=w).std()
+        )
 
     return data
 
@@ -63,21 +67,11 @@ def missing_values_checking(data):
 
 def normalize_features(data):
     """
-    Normalizes selected features using scikit-learn's StandardScaler (or similar).
-    Also adds a normalized time column (manual min-max scaling for the index).
-
-    Features to be normalized with StandardScaler in this example:
-      - Log Mid-Price
-      - Log Return
-      - Log Mid-Price Return
-      - Spread
-      - Imbalance
-      - Volume (via cumulative volume if desired)
-      - Moving Average (20 days)
+    Normalizes the time (index) column using min-max scaling to [0, 1].
 
     We separate at the end:
       - gold_data: raw + minimal derived metrics
-      - normalized_data: only the normalized/transformed columns
+      - normalized_data: only the normalized time column
 
     Parameters:
         data (pd.DataFrame): The dataset with metrics added.
@@ -90,40 +84,10 @@ def normalize_features(data):
     gold_data = data.copy()
 
     # 1. Normalize time (index) with min-max scaling to [0, 1]
-    gold_data["Normalized Time"] = (
-        (gold_data.index - gold_data.index[0]) / (gold_data.index[-1] - gold_data.index[0])
-    )
+    normalized_time = (gold_data.index - gold_data.index[0]) / (gold_data.index[-1] - gold_data.index[0])
+    gold_data["Normalized Time"] = normalized_time
 
-    # 2. StandardScaler for a selected set of columns
-    columns_to_scale = [
-        "Log Mid-Price",
-        "Log Return",
-        "Log Mid-Price Return",
-        "Spread",
-        "Imbalance",
-        "Moving Average (20 days)",
-        "Volume"
-    ]
-
-    # Prepare data for fitting
-    scaler = StandardScaler()
-
-    subset_for_scaling = gold_data[columns_to_scale]
-
-    scaled_values = scaler.fit_transform(subset_for_scaling)
-
-    # Store scaled values back under "Normalized <column>" names
-    for i, col in enumerate(columns_to_scale):
-        gold_data[f"Normalized {col}"] = scaled_values[:, i]
-
-    # Build the final DataFrame with only the normalized columns
-    normalized_cols = [f"Normalized {c}" for c in columns_to_scale] + ["Normalized Time"]
-    normalized_data = gold_data[normalized_cols].copy()
-
-    # Drop them from gold_data to keep it as "unscaled" data
-    gold_data.drop(columns=normalized_cols, inplace=True, errors="ignore")
-
-    return gold_data, normalized_data
+    return gold_data
 
 
 def apply_lead_lag(data, lead_lag_columns=None):
@@ -193,24 +157,81 @@ def apply_lead_lag(data, lead_lag_columns=None):
     return pd.DataFrame([r[1] for r in rows], index=[r[0] for r in rows])
 
 
-def compute_signature(data, order):
+def compute_signature(df,
+                      order=2,
+                      windows=[10],
+                      exclude_cols=None):
     """
-    Compute the signature of the given data up to a specified order.
-
-    Parameters:
-        data (pd.DataFrame): Input time-series data (e.g., lead-lag transformed data).
-        order (int): The order of the signature to compute.
-
-    Returns:
-        np.ndarray: The computed signature.
-    """
-    # Ensure data is sorted by index
-    data = data.sort_index()
-
-    # Convert the DataFrame to a NumPy array (required by `esig`)
-    path = data.values
-
-    # Compute the signature up to the specified order
-    signature = ts.stream2sig(path, order)
+    Calculates the path signature of specified order over multiple rolling windows 
+    and returns them as a separate DataFrame.
     
-    return signature
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The DataFrame containing the daily data.
+    order : int, optional
+        The order of the signature to calculate. Default is 2.
+    windows : list of int, optional
+        List of window sizes (in days) to use for rolling signature calculations. 
+        Default is [5, 10].
+    exclude_cols : list of str, optional
+        List of column names to exclude from the signature calculation. 
+        Default is None (no exclusions).
+        
+    Returns
+    -------
+    pd.DataFrame
+        A DataFrame containing the calculated signature features, with 
+        column names indicating the window size and signature components.
+    """
+    
+    if exclude_cols is None:
+        exclude_cols = []
+    
+    # Select numeric columns and exclude specified columns
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    signature_cols = [col for col in numeric_cols if col not in exclude_cols]
+    
+    # Dictionary to hold the computed signature columns
+    signature_data = {}
+    
+    for w in windows:
+        d = len(signature_cols)
+        
+        # Récupération des "clefs" de la signature et conversion en liste
+        # ts.sigkeys(d, order) -> par exemple "() (1) (2) (1,2)" qu'on split
+        keys_str = ts.sigkeys(d, order)
+        signature_keys = keys_str.split()  # Liste de chaînes, ex : ["()", "(1)", "(2)", "(1,2)", ...]
+        signature_keys = [key for key in signature_keys if key != "()"]
+
+        # Création des noms de colonnes explicites
+        #   Ex: sig_w5_ord2_()  sig_w5_ord2_(1)  sig_w5_ord2_(2)  sig_w5_ord2_(1,2) ...
+        col_names = [f"sig_w{w}_ord{order}_{key}" for key in signature_keys]
+        
+        # Initialiser les colonnes avec NaN
+        for cn in col_names:
+            signature_data[cn] = [np.nan] * len(df)
+        
+        # Calcul des signatures sur fenêtres glissantes
+        for i in range(len(df)):
+            start_idx = i - w + 1
+            if start_idx < 0:
+                # Pas assez de points pour former une fenêtre de taille w
+                continue
+            
+            # Fenêtre courante sur les colonnes à inclure dans la signature
+            window_df = df.iloc[start_idx : i + 1][signature_cols]
+            # Conversion en array
+            path = window_df.to_numpy()
+            
+            # Calcul de la signature d'ordre spécifié
+            sig_values = ts.stream2sig(path, order)
+            
+            # Assignation des valeurs aux colonnes
+            for cn, val in zip(col_names, sig_values[1:]):
+                signature_data[cn][i] = val
+    
+    # Assemblage final en un DataFrame
+    signatures_df = pd.DataFrame(signature_data, index=df.index)
+    
+    return signatures_df

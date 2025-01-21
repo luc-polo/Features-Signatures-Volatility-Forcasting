@@ -26,6 +26,7 @@ data_processing.missing_values_checking(gold_data)
 # - **Log Mid-Price Return**: Daily difference of Log Mid-Price, capturing log-scaled variations in mid-price.
 # - **Spread**: Difference between "High" and "Low" prices, indicating price volatility within a time interval.
 # - **Imbalance**: Relative volume difference between consecutive intervals, capturing market sentiment and activity.
+# - **Volatility_x_days** Volatility for windows (number of daily values used to compute) 8, 15, 21, 50, 90, 120, 260
 gold_data = data_processing.add_metrics(gold_data)
 
 # Visualize all key metrics in a single multi-panel plot
