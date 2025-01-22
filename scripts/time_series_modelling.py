@@ -1,13 +1,16 @@
 import numpy as np
 import pandas as pd
 from statsmodels.tsa.stattools import adfuller
+from statsmodels.stats.diagnostic import acorr_ljungbox
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 import matplotlib.pyplot as plt
-from statsmodels.tsa.statespace.sarimax import SARIMAX
+from statsmodels.tsa.arima.model import ARIMA, ARIMAResults
 from arch import arch_model
-from pmdarima import auto_arima
 import itertools
 import warnings
+from itertools import product
+from typing import Tuple
+
 
 def plot_acf_pacf(series, lags=30):
     """
@@ -18,21 +21,42 @@ def plot_acf_pacf(series, lags=30):
     plot_pacf(series.dropna(), ax=axes[1], lags=lags, title="PACF")
     plt.show()
 
-def differentiate_ts(series):
+def differentiate_ts(series, diff=1):
     """
-    Simple differencing if the series is non-stationary. Returns the differenced series.
-    (In practice, you'd check if differencing is actually required, perhaps multiple times.)
+    Differencing the series 'diff' times. Returns the differenced series.
     """
-    return series.diff(1).dropna()
+    for _ in range(diff):
+        series = series.diff().dropna()
+    return series
 
-def fit_sarima(train_series):
+
+
+def fit_arima(train_series, p, d, q):
     """
-    Automatically fits a SARIMA model to the training series using auto_arima.
-    Returns the fitted model.
+    Ajuste un modèle ARIMA avec les paramètres spécifiés et renvoie le modèle entraîné.
+
+    Parameters:
+        train_series (pd.Series): La série temporelle d'entraînement.
+        p (int): Ordre AR (Auto-Régressif).
+        d (int): Ordre de différenciation.
+        q (int): Ordre MA (Moyenne Mobile).
+
+    Returns:
+        model_fit (ARIMAResults): Le modèle ARIMA ajusté.
     """
-    auto_model = auto_arima(train_series, seasonal=True, trace=False, stepwise=True, suppress_warnings=True)
-    model = SARIMAX(train_series, order=auto_model.order, seasonal_order=auto_model.seasonal_order, enforce_stationarity=False)
-    return model.fit(disp=False)
+    try:
+        # Ajuster le modèle ARIMA
+        model = ARIMA(train_series, order=(p, d, q))
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")  # Ignorer les avertissements durant l'ajustement
+            model_fit = model.fit()
+        print(f"Modèle ARIMA({p}, {d}, {q}) ajusté avec succès.")
+        return model_fit
+    except Exception as e:
+        print(f"Erreur lors de l'ajustement du modèle ARIMA({p}, {d}, {q}): {e}")
+        return None
+
+
 
 def fit_garch_auto(train_series, p_max=5, q_max=5, criterion='aic'):
     """
