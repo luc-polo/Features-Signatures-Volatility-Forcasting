@@ -1,13 +1,10 @@
-import sys
+from types import EllipsisType
 from typing import Any, Literal
 
 import numpy as np
 import numpy.typing as npt
 
-if sys.version_info >= (3, 11):
-    from typing import assert_type
-else:
-    from typing_extensions import assert_type
+from typing_extensions import assert_type
 
 AR_LIKE_b: list[bool]
 AR_LIKE_i: list[int]
@@ -61,13 +58,13 @@ assert_type(np.mgrid[1:1:2, None:10], npt.NDArray[Any])
 assert_type(np.ogrid[1:1:2], tuple[npt.NDArray[Any], ...])
 assert_type(np.ogrid[1:1:2, None:10], tuple[npt.NDArray[Any], ...])
 
-assert_type(np.index_exp[0:1], tuple[slice])
-assert_type(np.index_exp[0:1, None:3], tuple[slice, slice])
-assert_type(np.index_exp[0, 0:1, ..., [0, 1, 3]], tuple[Literal[0], slice, ellipsis, list[int]])
+assert_type(np.index_exp[0:1], tuple[slice[int, int, None]])
+assert_type(np.index_exp[0:1, None:3], tuple[slice[int, int, None], slice[None, int, None]])
+assert_type(np.index_exp[0, 0:1, ..., [0, 1, 3]], tuple[Literal[0], slice[int, int, None], EllipsisType, list[int]])
 
-assert_type(np.s_[0:1], slice)
-assert_type(np.s_[0:1, None:3], tuple[slice, slice])
-assert_type(np.s_[0, 0:1, ..., [0, 1, 3]], tuple[Literal[0], slice, ellipsis, list[int]])
+assert_type(np.s_[0:1], slice[int, int, None])
+assert_type(np.s_[0:1, None:3], tuple[slice[int, int, None], slice[None, int, None]])
+assert_type(np.s_[0, 0:1, ..., [0, 1, 3]], tuple[Literal[0], slice[int, int, None], EllipsisType, list[int]])
 
 assert_type(np.ix_(AR_LIKE_b), tuple[npt.NDArray[np.bool], ...])
 assert_type(np.ix_(AR_LIKE_i, AR_LIKE_f), tuple[npt.NDArray[np.float64], ...])
