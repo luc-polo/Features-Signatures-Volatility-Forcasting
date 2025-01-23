@@ -322,13 +322,15 @@ def split_train_test(original_df: pd.DataFrame,
     Y_train = target_aligned.iloc[:split_index]
     Y_test = target_aligned.iloc[split_index:]
 
+
     return X_train, X_test, Y_train, Y_test
 
 
 def split_time_series(df, target_column, test_proportion):
     """
     Splits a time series dataframe into training and test sets in chronological order, 
-    based on the specified proportion of samples in the test set.
+    based on the specified proportion of samples in the test set. Returns additional 
+    information for convenience.
 
     Parameters:
     -----------
@@ -345,15 +347,15 @@ def split_time_series(df, target_column, test_proportion):
         The training portion of the target column.
     series_test : pandas.Series
         The test portion of the target column.
+    first_test_index : pandas.Timestamp or int
+        The index of the first test set entry.
+    target_series : pandas.Series
+        The complete target series extracted from the dataframe.
     """
-    # Extract the target series from the dataframe
     target_series = df[target_column]
-    
-    # Calculate the index at which to split the data
     split_index = int(len(target_series) * (1 - test_proportion))
-    
-    # Split into training and test sets in chronological order
     series_train = target_series.iloc[:split_index]
     series_test = target_series.iloc[split_index:]
-    
-    return series_train, series_test
+    first_test_index = series_test.index[0]
+    return series_train, series_test, first_test_index, target_series
+
