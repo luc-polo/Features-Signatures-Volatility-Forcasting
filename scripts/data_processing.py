@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
 import esig.tosig as ts
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, PolynomialFeatures
 from sklearn.model_selection import train_test_split
-
+import warnings
 
 # Helper function to compute forward (future) rolling volatility
 # excluding the current day. For row i, it calculates std of [i+1 ... i+w].
@@ -48,6 +48,9 @@ def add_metrics(data):
     # Moving Average (20-day rolling mean of the closing price)
     data["Moving Average (20 days)"] = data["Close"].rolling(window=20).mean()
 
+    # Moving Average (10-day rolling mean of the closing price)
+    data["Moving Average (10 days)"] = data["Close"].rolling(window=10).mean()
+
     # Log Mid-Price
     data["Log Mid-Price"] = np.log(0.5 * (data["High"] + data["Low"]))
 
@@ -63,7 +66,7 @@ def add_metrics(data):
     )
 
     # Volatility calculations for specified window sizes
-    window_sizes = [10, 21, 50, 260]
+    window_sizes = [3, 10, 21, 50, 260]
     for w in window_sizes:
         # Past Volatility
         past_vol_col = f"Volatility_Past_{w}_days"
@@ -75,6 +78,32 @@ def add_metrics(data):
             np.sqrt(252) * compute_future_volatility(data["Log Return"], w))
     
     return data
+
+def clean_dataframes(*dataframes):
+    """
+    Remove rows with NaN values across multiple DataFrames and print the number of removed rows.
+
+    Parameters:
+        *dataframes: Variable number of pandas DataFrames.
+
+    Returns:
+        Tuple of cleaned DataFrames, in the same order as provided.
+    """
+    # Combine all indices with NaNs across DataFrames
+    all_nan_indices = set().union(*[df[df.isna().any(axis=1)].index for df in dataframes])
+
+    # Print the number of rows removed
+    print(f"Removed {len(all_nan_indices)} rows with missing values.")
+
+    # Drop rows with these indices from all DataFrames
+    cleaned_dataframes = tuple(df.drop(index=all_nan_indices) for df in dataframes)
+
+    # Print the number of rows remaining for each DataFrame
+    for i, df in enumerate(cleaned_dataframes, start=1):
+        print(f"DataFrame {i}: {len(df)} rows remaining.")
+
+    return cleaned_dataframes
+
 
 
 def remove_missing_rows(df: pd.DataFrame):
@@ -244,7 +273,7 @@ def compute_signature(df,
 
         # Création des noms de colonnes explicites
         #   Ex: sig_w5_ord2_()  sig_w5_ord2_(1)  sig_w5_ord2_(2)  sig_w5_ord2_(1,2) ...
-        col_names = [f"sig_w{w}_ord{order}_{key}" for key in signature_keys]
+        col_names = [f"sig_w{w}_ord{key.count(',') + 1}_{key}" for key in signature_keys]
         
         # Initialiser les colonnes avec NaN
         for cn in col_names:
@@ -273,6 +302,50 @@ def compute_signature(df,
     signatures_df = pd.DataFrame(signature_data, index=df.index)
 
     return signatures_df
+
+def compute_signature_differences(signature_df, w):
+    """
+    Calculate the differences between second-order signature terms for all unique pairs of variables.
+
+    Parameters
+    ----------
+    signature_df : pd.DataFrame
+        DataFrame containing the second-order signature features (output of `compute_signature`).
+
+    Returns
+    -------
+    pd.DataFrame
+        A DataFrame containing the calculated differences for all unique pairs of variables, 
+        with appropriately named columns.
+    """
+    # Extraire les colonnes de signature d'ordre deux
+    second_order_cols = [col for col in signature_df.columns if col.startswith("sig_") and col.count(',') == 1]
+    
+    # Identifier les paires uniques de variables (x, y) où x < y
+    variable_pairs = set()
+    for col in second_order_cols:
+        try:
+            indices = col.split('(')[-1].split(')')[0]  # Extraire la partie "x,y"
+            x, y = map(int, indices.split(','))
+            if x < y:  # Assurer que chaque paire est unique et que x < y
+                variable_pairs.add((x, y))
+        except (ValueError, IndexError):
+            # Ignorer les colonnes qui ne suivent pas le format attendu
+            continue
+    
+    # Calculer les différences pour chaque paire unique
+    differences_data = {
+        f"diff_{x}_{y}": signature_df[f"sig_w{w}_ord2_({x},{y})"] - signature_df[f"sig_w{w}_ord2_({y},{x})"]
+        for x, y in variable_pairs 
+        if f"sig_w{w}_ord2_({x},{y})" in signature_df.columns and f"sig_w{w}_ord2_({y},{x})" in signature_df.columns
+    }
+    
+    # Convertir le dictionnaire en DataFrame
+    differences_df = pd.DataFrame(differences_data, index=signature_df.index)
+
+    return differences_df
+
+
 
 
 
@@ -358,4 +431,124 @@ def split_time_series(df, target_column, test_proportion):
     series_test = target_series.iloc[split_index:]
     first_test_index = series_test.index[0]
     return series_train, series_test, first_test_index, target_series
+
+def rank_predictors_by_correlation(target_df, *predictor_dfs):
+    """
+    Ranks predictors from multiple DataFrames by the absolute value of their correlation with the target feature.
+
+    Parameters:
+        target_df: DataFrame containing the target feature.
+        *predictor_dfs: Any number of DataFrames containing predictor features.
+
+    Returns:
+        A sorted DataFrame of predictors and their absolute correlation coefficients.
+    """
+    # Combine all predictors into one DataFrame
+    predictors = pd.concat(predictor_dfs, axis=1)
+
+    # Compute correlations with the target feature
+    correlations = predictors.corrwith(target_df.squeeze()).abs().sort_values(ascending=False)
+
+    # Return the sorted correlations as a DataFrame
+    return correlations.reset_index(name='Absolute Correlation').rename(columns={'index': 'Predictor'})
+
+
+
+def filter_predictors_by_correlation(df1, df2, target_df, threshold):
+    """
+    Filters predictor DataFrames by removing columns with correlation below the threshold.
+
+    Parameters:
+        df1, df2, df3: Predictor DataFrames.
+        target_df: DataFrame containing the target feature.
+        threshold: Correlation threshold.
+
+    Returns:
+        Filtered predictor DataFrames.
+    """
+    def filter_df(df):
+        correlations = df.corrwith(target_df.squeeze()).abs()
+        removed_features = len(correlations[correlations < threshold])
+        print(f"Removed {removed_features} features from a DataFrame.")
+        return df.loc[:, correlations >= threshold]
+
+    return filter_df(df1), filter_df(df2)
+
+
+import pandas as pd
+
+def get_highly_correlated_features(predictors_df, target, threshold):
+    """
+    Selects predictor features that have an absolute correlation with the target above the specified threshold.
+
+    Parameters:
+        predictors_df (pd.DataFrame): DataFrame containing predictor features.
+        target (pd.Series or pd.DataFrame): Series or single-column DataFrame containing the target feature.
+        threshold (float): Minimum absolute correlation required to retain a feature.
+
+    Returns:
+        pd.DataFrame: DataFrame containing only the highly correlated features.
+    """
+    # Ensure target is a Series
+    if isinstance(target, pd.DataFrame):
+        if target.shape[1] != 1:
+            raise ValueError("target DataFrame must have exactly one column.")
+        target = target.iloc[:, 0]
+    elif not isinstance(target, pd.Series):
+        raise TypeError("target must be a pandas Series or single-column DataFrame.")
+    
+    # Calculate correlations
+    correlations = predictors_df.corrwith(target).abs()
+    
+    # Filter features based on threshold
+    selected_features = correlations[correlations >= threshold].index
+    filtered_df = predictors_df[selected_features]
+    
+    # Display the number of retained features
+    print(f"Number of features retained: {len(selected_features)}")
+    
+    return filtered_df
+
+
+
+def get_highly_correlated_quadratics(predictors_df, target_df, threshold):
+    """
+    Identifies quadratic terms and their combinations that are most correlated with the target.
+
+    Parameters:
+        predictors_df: DataFrame containing the predictor features.
+        target_df: DataFrame containing the target feature.
+        threshold: Correlation threshold.
+
+    Returns:
+        A DataFrame of filtered quadratic terms and their correlations with the target.
+    """
+    
+    # Initialize PolynomialFeatures to generate quadratic terms
+    poly = PolynomialFeatures(degree=2, include_bias=False, interaction_only=False)
+    
+    # Generate quadratic terms
+    quadratic_data = poly.fit_transform(predictors_df)
+    feature_names = poly.get_feature_names_out(predictors_df.columns)
+    
+    # Create a DataFrame for quadratic terms
+    quadratic_df = pd.DataFrame(quadratic_data, columns=feature_names, index=predictors_df.index)
+
+    # Compute correlations with the target
+    correlations = quadratic_df.corrwith(target_df.squeeze())
+ 
+    # Filter by the threshold
+    filtered_terms = correlations[correlations.abs() >= threshold]
+ 
+    # Select only the columns corresponding to the filtered terms
+    filtered_quadratic_df = quadratic_df[filtered_terms.index]
+    
+    # Display the number of retained variables
+    print(f"Number of quadratic terms retained : {len(filtered_terms)}")
+    
+    return filtered_quadratic_df
+
+
+
+
 

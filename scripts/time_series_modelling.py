@@ -10,6 +10,7 @@ from sklearn.metrics import mean_squared_error
 
 
 
+
 def plot_acf_pacf(series, lags=30):
     """
     Plots the ACF and PACF for a given series to help identify AR and MA orders.
@@ -116,7 +117,7 @@ def fit_garch_auto(train_series, p_max=5, q_max=5, criterion='aic'):
     # Suppress warnings temporarily
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        for p, q in itertools.product(range(1, p_max + 1), range(1, q_max + 1)):
+        for p, q in itertools.product(range(0, p_max + 1), range(0, q_max + 1)):
             try:
                 model = arch_model(series_clean, mean='Zero', vol='GARCH', p=p, q=q, dist='normal')
                 res = model.fit(disp='off')
