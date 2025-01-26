@@ -111,8 +111,6 @@ def evaluate_and_plot_model(grid_search, X_test, Y_test, title='Predicted vs Rea
     plot_predicted_vs_realized(comparison_df, full_title)
     plot_residuals(comparison_df, full_title)
 
-    return comparison_df, metrics
-
 
 
 def pls_transform_and_plot(X, Y, n_components):
