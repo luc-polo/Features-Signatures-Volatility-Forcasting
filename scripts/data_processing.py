@@ -224,6 +224,29 @@ def apply_lead_lag(data, lead_lag_columns=None):
     return pd.DataFrame([r[1] for r in rows], index=[r[0] for r in rows])
 
 
+
+def revert_lead_lag(dataset):
+    """
+    Reverts a Lead-Lag transformed dataset back to its original structure 
+    by keeping only the rows with odd line numbers (starting from 0).
+    The original indices are preserved.
+
+    Parameters:
+        dataset (pd.DataFrame): The Lead-Lag transformed dataset.
+
+    Returns:
+        pd.DataFrame: A dataset containing only the original rows from 
+                      the Lead-Lag transformation, with their original indices.
+    """
+    # Select rows with odd line numbers (1-based odd is 0-based even index)
+    odd_rows = dataset.iloc[::2]
+    
+    return odd_rows
+
+
+
+
+
 def compute_signature(df,
                       order=2,
                       windows=[10],
