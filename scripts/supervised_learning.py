@@ -106,6 +106,16 @@ def evaluate_and_plot_model(grid_search, X_test, Y_test, title='Predicted vs Rea
         plt.ylabel('Residuals')
         plt.legend()
         plt.show()
+    
+    # Plot predictions vs actual values
+    plt.figure(figsize=(10, 6))
+    plt.scatter(Y_test, Y_pred, alpha=0.6, label='Predictions')
+    plt.plot([min(Y_test), max(Y_test)], [min(Y_test), max(Y_test)], 'r--', label='Perfect Fit')
+    plt.xlabel("True Values")
+    plt.ylabel("Predictions")
+    plt.title("Predicted vs Realized Volatility")
+    plt.legend()
+    plt.show()
 
     # Plot the results with the updated title
     plot_predicted_vs_realized(comparison_df, full_title)
